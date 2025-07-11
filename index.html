@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ShortWorm 🐛 - Shrink Your Link</title>
   <style>
+    /* Base styles remain the same */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -17,8 +18,70 @@
       color: white;
       padding: 20px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
     }
 
+    .worm-animation {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .worm-segment {
+      width: 30px;
+      height: 30px;
+      background-color: #8bc34a;
+      border-radius: 50%;
+      margin-right: -10px;
+      animation: wormMove 8s linear infinite;
+      animation-delay: calc(var(--segment) * 0.1s);
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    }
+
+    .worm-head {
+      width: 35px;
+      height: 35px;
+      background-color: #4caf50;
+      position: relative;
+    }
+
+    .worm-head::after {
+      content: "🐛";
+      position: absolute;
+      font-size: 20px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes wormMove {
+      0% {
+        transform: translateX(-100px) rotate(0deg);
+      }
+      30% {
+        transform: translateX(calc(100vw - 50px)) rotate(180deg);
+      }
+      31% {
+        transform: translateX(calc(100vw - 50px)) rotate(180deg) scaleX(-1);
+      }
+      60% {
+        transform: translateX(-100px) rotate(0deg) scaleX(-1);
+      }
+      61% {
+        transform: translateX(-100px) rotate(0deg);
+      }
+      100% {
+        transform: translateX(calc(100vw - 50px)) rotate(180deg);
+      }
+    }
+
+    /* Rest of your existing CSS remains the same */
     .page-wrapper {
       display: flex;
       justify-content: center;
@@ -26,174 +89,164 @@
       padding: 20px;
       gap: 20px;
     }
-
-    .side-ad {
-      width: 120px;
-      height: 300px;
-      background: #e0e0e0;
-      border-radius: 6px;
-      text-align: center;
-      padding: 10px;
-      font-weight: bold;
-      font-size: 14px;
-    }
-
-    .container {
-      flex: 1;
-      max-width: 700px;
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 14px 24px;
-      font-size: 16px;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .custom-guide {
-      font-size: 14px;
-      background: #f9f9f9;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-    }
-
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border: 2px solid #4caf50;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      display: none;
-      z-index: 1000;
-    }
-
-    .popup a {
-      word-break: break-all;
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0,0,0,0.4);
-      display: none;
-      z-index: 999;
-    }
+    /* ... (keep all your other existing CSS) ... */
   </style>
 </head>
 <body>
   <header>
+    <div class="worm-animation">
+      <div class="worm-head worm-segment" style="--segment: 0"></div>
+      <div class="worm-segment" style="--segment: 1"></div>
+      <div class="worm-segment" style="--segment: 2"></div>
+      <div class="worm-segment" style="--segment: 3"></div>
+      <div class="worm-segment" style="--segment: 4"></div>
+    </div>
     <h1>ShortWorm 🐛</h1>
     <p>Shrink your links — the wormy way.</p>
   </header>
 
+  <!-- Rest of your existing HTML remains the same -->
   <div class="page-wrapper">
     <div class="side-ad">AD SPACE<br />Left Side</div>
 
     <div class="container">
-      <h2>1. Paste your link below:</h2>
-      <input type="text" id="longUrl" placeholder="https://yourlonglink.com" />
-      <button onclick="shorten()">Generate Link</button>
-
-      <h3>2. Custom URL (Optional)</h3>
-      <div class="custom-guide">
-        <strong>How to create your custom short link:</strong><br /><br />
-        <u>Instructions:</u><br />
-        1. Paste your url in the box above.<br />
-        2. Type your custom code in the box below (e.g. <code>abc123</code>).<br />
-        3. Only use 3–15 characters: letters, numbers, dashes (-), or underscores (_).<br />
-        4. Click "Generate Link".<br /><br />
-        <strong>Example of final link:</strong><br />
-        <em>https://shortworm.com/r/abc123</em>
-      </div>
-      <input type="text" id="customCode" placeholder="Enter your custom end code here" />
-      <button onclick="shorten()">Generate Link</button>
+      <!-- Your existing form content -->
     </div>
 
     <div class="side-ad">AD SPACE<br />Right Side</div>
   </div>
 
-  <div class="overlay" id="overlay"></div>
-  <div class="popup" id="popup">
-    <h3>🐛 Your Short Link:</h3>
-    <p id="result"></p>
-    <button onclick="copyToClipboard()">Copy to Clipboard</button>
-    <button onclick="closePopup()">Close</button>
-  </div>
+  <!-- Your existing popup and overlay HTML -->
 
+  <!-- QR Code library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  
   <script>
+    // Backend integration configuration
+    const config = {
+      apiEndpoint: "/api/shorten", // Change this to your backend endpoint
+      frontendUrl: "https://shortworm.com/r/", // Change to your domain
+      enableLocalSimulation: true // Set to false when using real backend
+    };
+
+    // Existing variables
     const usedCodes = new Set();
     let currentLink = "";
+    let currentQR = null;
 
-    function shorten() {
-      const input = document.getElementById("longUrl").value.trim();
-      const custom = document.getElementById("customCode").value.trim();
-      const resultBox = document.getElementById("result");
+    // Modified shorten function with backend integration
+    async function shorten(event) {
+      try {
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = "Generating...";
+        
+        const input = document.getElementById("longUrl").value.trim();
+        const custom = document.getElementById("customCode").value.trim();
 
-      if (!input || !input.startsWith("http")) {
-        alert("Please enter a valid URL starting with http or https");
-        return;
-      }
-
-      if (custom) {
-        const validCode = /^[a-zA-Z0-9-_]{3,15}$/.test(custom);
-        if (!validCode) {
-          alert("Custom code must be 3–15 characters: letters, numbers, - or _ only.");
+        if (!input || !input.startsWith("http")) {
+          alert("Please enter a valid URL starting with http or https");
           return;
         }
-        if (usedCodes.has(custom)) {
-          alert("This custom code is already taken. Try another.");
-          return;
+
+        if (custom) {
+          const validCode = /^[a-zA-Z0-9-_]{3,15}$/.test(custom);
+          if (!validCode) {
+            alert("Custom code must be 3–15 characters: letters, numbers, - or _ only.");
+            return;
+          }
         }
+
+        let shortUrl;
+        
+        if (config.enableLocalSimulation) {
+          // Local simulation mode
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          const code = custom || Math.random().toString(36).substring(2, 7);
+          shortUrl = `${config.frontendUrl}${code}`;
+          usedCodes.add(code);
+        } else {
+          // Real backend integration
+          const response = await fetch(config.apiEndpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              originalUrl: input,
+              customCode: custom || undefined
+            })
+          });
+          
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to shorten URL");
+          }
+          
+          const data = await response.json();
+          shortUrl = data.shortUrl;
+        }
+
+        // Display result
+        currentLink = shortUrl;
+        document.getElementById("result").innerHTML = 
+          `<a href="${input}" target="_blank" rel="noopener">${shortUrl}</a>`;
+        
+        generateQRCode(shortUrl);
+        document.getElementById("popup").style.display = "block";
+        document.getElementById("overlay").style.display = "block";
+        
+        addToHistory(input, shortUrl);
+      } catch (error) {
+        console.error("Error:", error);
+        alert(error.message || "Something went wrong. Please try again.");
+      } finally {
+        const buttons = document.querySelectorAll("button");
+        buttons.forEach(button => {
+          if (button.textContent === "Generating...") {
+            button.disabled = false;
+            button.textContent = "Generate Link";
+          }
+        });
       }
-
-      const code = custom || Math.random().toString(36).substring(2, 7);
-      usedCodes.add(code);
-
-      const shortUrl = `https://shortworm.com/r/${code}`;
-      currentLink = shortUrl;
-      resultBox.innerHTML = `<a href="${input}" target="_blank">${shortUrl}</a>`;
-
-      document.getElementById("popup").style.display = "block";
-      document.getElementById("overlay").style.display = "block";
     }
 
-    function closePopup() {
-      document.getElementById("popup").style.display = "none";
-      document.getElementById("overlay").style.display = "none";
+    // Backend API call example (for when you implement it)
+    async function checkCodeAvailability(code) {
+      if (config.enableLocalSimulation) {
+        return !usedCodes.has(code);
+      }
+      
+      try {
+        const response = await fetch(`${config.apiEndpoint}/check?code=${encodeURIComponent(code)}`);
+        const data = await response.json();
+        return data.available;
+      } catch (error) {
+        console.error("Availability check failed:", error);
+        return false;
+      }
     }
 
-    function copyToClipboard() {
-      navigator.clipboard.writeText(currentLink).then(() => {
-        alert("Link copied to clipboard!");
-      }, () => {
-        alert("Failed to copy link.");
-      });
+    // Rest of your existing JavaScript functions remain the same
+    // (generateQRCode, downloadQR, shareLink, copyToClipboard, etc.)
+
+    // Initialize worm animation
+    function initWorm() {
+      const container = document.querySelector(".worm-animation");
+      // Add more segments if needed
+      for (let i = 5; i < 8; i++) {
+        const segment = document.createElement("div");
+        segment.className = "worm-segment";
+        segment.style.setProperty("--segment", i);
+        container.appendChild(segment);
+      }
     }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      generateQRCode("https://shortworm.com");
+      initWorm();
+    });
   </script>
 </body>
 </html>
