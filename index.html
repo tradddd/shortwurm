@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ShortWorm 🐛 - Shrink Your Link</title>
+  <title>ShortWurm 🐛 - Shrink Your Link</title>
   <style>
     body {
       margin: 0;
@@ -17,23 +17,6 @@
       color: white;
       padding: 20px;
       text-align: center;
-    }
-
-    .worm {
-      width: 100px;
-      height: 6px;
-      background: white;
-      border-radius: 50px;
-      animation: wiggleWorm 2s infinite ease-in-out;
-      margin: 0 auto 10px;
-    }
-
-    @keyframes wiggleWorm {
-      0% { transform: rotate(0deg); }
-      25% { transform: rotate(2deg); }
-      50% { transform: rotate(0deg); }
-      75% { transform: rotate(-2deg); }
-      100% { transform: rotate(0deg); }
     }
 
     .page-wrapper {
@@ -84,33 +67,6 @@
       margin-top: 10px;
     }
 
-    .result-area {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-top: 20px;
-      gap: 20px;
-    }
-
-    .short-link-box {
-      flex: 1;
-      font-size: 1.1rem;
-      padding: 10px;
-      background: #f1f1f1;
-      border-radius: 6px;
-    }
-
-    .ad-box {
-      width: 200px;
-      height: 150px;
-      background: #e0e0e0;
-      border-radius: 6px;
-      text-align: center;
-      padding: 10px;
-      font-weight: bold;
-      font-size: 14px;
-    }
-
     .custom-guide {
       font-size: 14px;
       background: #f9f9f9;
@@ -119,12 +75,39 @@
       margin-bottom: 10px;
     }
 
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 2px solid #4caf50;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+    }
+
+    .popup a {
+      word-break: break-all;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>ShortWorm 🐛</h1>
-    <div class="worm"></div>
+    <h1>ShortWurm 🐛</h1>
     <p>Shrink your links — the wormy way.</p>
   </header>
 
@@ -132,34 +115,38 @@
     <div class="side-ad">AD SPACE<br />Left Side</div>
 
     <div class="container">
-      <h2>Paste your long URL:</h2>
+      <h2>1. Paste your long URL below:</h2>
       <input type="text" id="longUrl" placeholder="https://yourlonglink.com" />
       <button onclick="shorten()">Generate Link</button>
 
-      <h3>Custom URL (Optional)</h3>
+      <h3>2. Custom URL (Optional)</h3>
       <div class="custom-guide">
-        <strong>Want to create a personalized short link?</strong><br /><br />
-        <u>Follow these steps:</u><br />
-        1. Think of a short, simple name (3–15 characters).<br />
-        2. Use only letters, numbers, dashes (-), or underscores (_).<br />
-        3. Type it below and click Generate again.<br /><br />
-        <strong>Example:</strong> If you enter <code>abc123</code>, your link will be:<br />
+        <strong>How to create your custom short link:</strong><br /><br />
+        <u>Instructions:</u><br />
+        1. Type your custom code in the box below (e.g. <code>abc123</code>).<br />
+        2. Only use 3–15 characters: letters, numbers, dashes (-), or underscores (_).<br />
+        3. Click "Generate Link" again.<br /><br />
+        <strong>Example of final link:</strong><br />
         <em>https://shortwurm.com/r/abc123</em>
       </div>
       <input type="text" id="customCode" placeholder="Enter your custom code here" />
       <button onclick="shorten()">Generate Link</button>
-
-      <div class="result-area">
-        <div class="short-link-box" id="result"></div>
-        <div class="ad-box">AD SPACE<br />Right Side</div>
-      </div>
     </div>
 
     <div class="side-ad">AD SPACE<br />Right Side</div>
   </div>
 
+  <div class="overlay" id="overlay"></div>
+  <div class="popup" id="popup">
+    <h3>🐛 Your Short Link:</h3>
+    <p id="result"></p>
+    <button onclick="copyToClipboard()">Copy to Clipboard</button>
+    <button onclick="closePopup()">Close</button>
+  </div>
+
   <script>
     const usedCodes = new Set();
+    let currentLink = "";
 
     function shorten() {
       const input = document.getElementById("longUrl").value.trim();
@@ -187,7 +174,24 @@
       usedCodes.add(code);
 
       const shortUrl = `https://shortwurm.com/r/${code}`;
-      resultBox.innerHTML = `🐛 Your short link: <a href="${input}" target="_blank">${shortUrl}</a>`;
+      currentLink = shortUrl;
+      resultBox.innerHTML = `<a href="${input}" target="_blank">${shortUrl}</a>`;
+
+      document.getElementById("popup").style.display = "block";
+      document.getElementById("overlay").style.display = "block";
+    }
+
+    function closePopup() {
+      document.getElementById("popup").style.display = "none";
+      document.getElementById("overlay").style.display = "none";
+    }
+
+    function copyToClipboard() {
+      navigator.clipboard.writeText(currentLink).then(() => {
+        alert("Link copied to clipboard!");
+      }, () => {
+        alert("Failed to copy link.");
+      });
     }
   </script>
 </body>
