@@ -3,29 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ShortWurm 🐛</title>
+  <title>ShortWurm 🐛 - Shrink Your Link</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9f9f9;
-      text-align: center;
-      padding: 40px 20px;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #333;
     }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
+    header {
+      background-color: #4caf50;
+      color: white;
+      padding: 20px;
+      text-align: center;
     }
 
     .worm {
-      width: 120px;
+      width: 100px;
       height: 20px;
-      margin: 0 auto 40px;
       background: linear-gradient(to right, #4caf50, #81c784);
       border-radius: 10px;
       animation: stretchWorm 3s ease-in-out infinite;
       transform-origin: left;
+      margin: 0 auto 10px;
     }
 
     @keyframes stretchWorm {
@@ -37,92 +38,96 @@
       }
     }
 
-    input {
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    input[type="text"] {
+      width: 100%;
       padding: 14px;
-      width: 90%;
-      max-width: 400px;
-      font-size: 1rem;
-      border-radius: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      margin-top: 10px;
-      box-sizing: border-box;
+      font-size: 16px;
     }
 
     button {
       padding: 14px 24px;
-      margin-top: 16px;
-      font-size: 1rem;
-      background: #4caf50;
+      font-size: 16px;
+      background-color: #4caf50;
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 6px;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #388e3c;
+    .result-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-top: 20px;
+      gap: 20px;
     }
 
-    .result {
-      margin-top: 20px;
+    .short-link-box {
+      flex: 1;
       font-size: 1.1rem;
-      word-break: break-word;
-    }
-
-    .ad-banner {
-      margin-top: 20px;
-      background: #eee;
       padding: 10px;
-      border-radius: 8px;
-      color: #333;
-      display: none; /* Hidden by default */
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-      font-weight: 600;
+      background: #f1f1f1;
+      border-radius: 6px;
     }
 
-    .ad-banner a {
-      color: #4caf50;
-      text-decoration: none;
+    .ad-box {
+      width: 200px;
+      height: 150px;
+      background: #e0e0e0;
+      border-radius: 6px;
+      text-align: center;
+      padding: 10px;
       font-weight: bold;
+      font-size: 14px;
     }
+
+    .custom-guide {
+      font-size: 14px;
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
   </style>
 </head>
 <body>
+  <header>
+    <h1>ShortWurm 🐛</h1>
+    <div class="worm"></div>
+    <p>Shrink your links — the wormy way.</p>
+  </header>
 
-  <h1>ShortWurm 🐛</h1>
-  <div class="worm"></div>
+  <div class="container">
+    <h2>Paste your long URL:</h2>
+    <input type="text" id="longUrl" placeholder="https://yourlonglink.com" />
 
-  <p>Paste your long link below to shrink it!</p>
+    <h3>Custom Short Code (Optional)</h3>
+    <div class="custom-guide">
+      Want a custom short link like <strong>shortwurm.com/r/mycode</strong>?<br />
+      Use 3–15 letters, numbers, dashes or underscores.<br />
+      Example: <em>summer2025</em>, <em>cool-link</em>
+    </div>
+    <input type="text" id="customCode" placeholder="Enter your custom code here" />
 
-  <input
-    type="text"
-    id="longUrl"
-    placeholder="https://yourlonglink.com"
-    autocomplete="off"
-  />
-  <br />
-  <input
-    type="text"
-    id="customCode"
-    placeholder="Custom code (optional)"
-    autocomplete="off"
-  />
+    <button onclick="shorten()">Shorten Link</button>
 
-  <br />
-  <button onclick="shorten()">Shorten URL</button>
-
-  <div class="result" id="result"></div>
-
-  <div id="customAd" class="ad-banner">
-    🎉 Thanks for using a custom link! Here's a special ad for you 🌟  
-    <!-- Replace below with your actual ad code/banner -->
-    <a href="https://example.com" target="_blank" rel="noopener noreferrer">Check out this cool offer!</a>
-  </div>
-
-  <div class="ad-banner" style="position: fixed; bottom: 0; left: 0; right: 0;">
-    🌱 Ad space here (banner only) — no popups, no autoplay
+    <div class="result-area">
+      <div class="short-link-box" id="result"></div>
+      <div class="ad-box">AD SPACE<br />Place your ad here</div>
+    </div>
   </div>
 
   <script>
@@ -131,7 +136,7 @@
     function shorten() {
       const input = document.getElementById("longUrl").value.trim();
       const custom = document.getElementById("customCode").value.trim();
-      const adDiv = document.getElementById("customAd");
+      const resultBox = document.getElementById("result");
 
       if (!input || !input.startsWith("http")) {
         alert("Please enter a valid URL starting with http or https");
@@ -141,32 +146,21 @@
       if (custom) {
         const validCode = /^[a-zA-Z0-9-_]{3,15}$/.test(custom);
         if (!validCode) {
-          alert(
-            "Custom code must be 3-15 characters, letters, numbers, - or _ only."
-          );
+          alert("Custom code must be 3–15 characters: letters, numbers, - or _ only.");
           return;
         }
         if (usedCodes.has(custom)) {
-          alert("This custom code is already taken. Please choose another.");
+          alert("This custom code is already taken. Try another.");
           return;
         }
       }
 
-      let code = custom || Math.random().toString(36).substring(2, 7);
+      const code = custom || Math.random().toString(36).substring(2, 7);
       usedCodes.add(code);
 
       const shortUrl = `https://shortwurm.com/r/${code}`;
-      document.getElementById("result").innerHTML = `
-        🐛 Your short link: <a href="${input}" target="_blank" rel="noopener noreferrer">${shortUrl}</a>
-      `;
-
-      if (custom) {
-        adDiv.style.display = "block";
-      } else {
-        adDiv.style.display = "none";
-      }
+      resultBox.innerHTML = `🐛 Your short link: <a href="${input}" target="_blank">${shortUrl}</a>`;
     }
   </script>
 </body>
 </html>
-
