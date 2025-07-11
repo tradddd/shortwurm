@@ -56,6 +56,10 @@
       font-size: 16px;
     }
 
+    input[type="text"]:focus {
+      outline: 2px solid #4caf50;
+    }
+
     button {
       padding: 14px 24px;
       font-size: 16px;
@@ -65,6 +69,14 @@
       border-radius: 6px;
       cursor: pointer;
       margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #3e8e41;
+    }
+
+    button:active {
+      transform: scale(0.98);
     }
 
     .custom-guide {
@@ -103,6 +115,12 @@
       display: none;
       z-index: 999;
     }
+
+    @media (max-width: 768px) {
+      .side-ad {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -117,20 +135,21 @@
     <div class="container">
       <h2>1. Paste your link above:</h2>
       <input type="text" id="longUrl" placeholder="https://yourlonglink.com" />
-      <button onclick="shorten()">Generate Link</button>
+      <button onclick="shorten(event)">Generate Link</button>
 
       <h3>2. Custom URL (Optional)</h3>
       <div class="custom-guide">
         <strong>How to create your custom short link:</strong><br /><br />
         <u>Instructions:</u><br />
-        1. Type your custom code in the box below (e.g. <code>abc123</code>).<br />
-        2. Only use 3–15 characters: letters, numbers, dashes (-), or underscores (_).<br />
-        3. Click "Generate Link" again.<br /><br />
+        1. Paste your link above.<br />
+        2. Type your custom code in the box below (e.g. <code>abc123</code>).<br />
+        3. Only use 3–15 characters: letters, numbers, dashes (-), or underscores (_).<br />
+        4. Click "Generate Link" again.<br /><br />
         <strong>Example of final link:</strong><br />
         <em>https://shortworm.com/r/abc123</em>
       </div>
       <input type="text" id="customCode" placeholder="Enter your custom end code here" />
-      <button onclick="shorten()">Generate Link</button>
+      <button onclick="shorten(event)">Generate Link</button>
     </div>
 
     <div class="side-ad">AD SPACE<br />Right Side</div>
@@ -148,37 +167,49 @@
     const usedCodes = new Set();
     let currentLink = "";
 
-    function shorten() {
-      const input = document.getElementById("longUrl").value.trim();
-      const custom = document.getElementById("customCode").value.trim();
-      const resultBox = document.getElementById("result");
+    async function shorten(event) {
+      try {
+        const input = document.getElementById("longUrl").value.trim();
+        const custom = document.getElementById("customCode").value.trim();
+        const resultBox = document.getElementById("result");
+        const btn = event.target;
 
-      if (!input || !input.startsWith("http")) {
-        alert("Please enter a valid URL starting with http or https");
-        return;
-      }
-
-      if (custom) {
-        const validCode = /^[a-zA-Z0-9-_]{3,15}$/.test(custom);
-        if (!validCode) {
-          alert("Custom code must be 3–15 characters: letters, numbers, - or _ only.");
+        if (!input || !input.startsWith("http")) {
+          alert("Please enter a valid URL starting with http or https");
           return;
         }
-        if (usedCodes.has(custom)) {
-          alert("This custom code is already taken. Try another.");
-          return;
+
+        if (custom) {
+          const validCode = /^[a-zA-Z0-9-_]{3,15}$/.test(custom);
+          if (!validCode) {
+            alert("Custom code must be 3–15 characters: letters, numbers, - or _ only.");
+            return;
+          }
+          if (usedCodes.has(custom)) {
+            alert("This custom code is already taken. Try another.");
+            return;
+          }
         }
+
+        btn.disabled = true;
+        btn.textContent = "Generating...";
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const code = custom || Math.random().toString(36).substring(2, 7);
+        usedCodes.add(code);
+
+        const shortUrl = `https://shortworm.com/r/${code}`;
+        currentLink = shortUrl;
+        resultBox.innerHTML = `<a href="${input}" target="_blank" rel="noopener">${shortUrl}</a>`;
+
+        document.getElementById("popup").style.display = "block";
+        document.getElementById("overlay").style.display = "block";
+
+        btn.disabled = false;
+        btn.textContent = "Generate Link";
+      } catch (error) {
+        console.error(error);
       }
-
-      const code = custom || Math.random().toString(36).substring(2, 7);
-      usedCodes.add(code);
-
-      const shortUrl = `https://shortworm.com/r/${code}`;
-      currentLink = shortUrl;
-      resultBox.innerHTML = `<a href="${input}" target="_blank">${shortUrl}</a>`;
-
-      document.getElementById("popup").style.display = "block";
-      document.getElementById("overlay").style.display = "block";
     }
 
     function closePopup() {
