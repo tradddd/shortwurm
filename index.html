@@ -153,7 +153,7 @@
       <h2>1. Paste your link below:</h2>
       <input type="text" id="longUrl" placeholder="https://yourlonglink.com" />
       <button onclick="shorten(event)">Generate Link</button>
-      <button onclick="generateQR()">Generate QR Code</button>
+      <button onclick="generateQRCodeOnly()">Generate QR Code</button>
 
       <h3>2. Custom URL (Optional)</h3>
       <div class="custom-guide">
@@ -245,7 +245,7 @@
         document.getElementById("popup").style.display = "block";
         document.getElementById("overlay").style.display = "block";
 
-        generateQR();
+        generateQRCode(currentLink);
         updateHistory(shortUrl);
 
         btn.disabled = false;
@@ -255,12 +255,25 @@
       }
     }
 
-    function generateQR() {
+    function generateQRCodeOnly() {
+      const input = document.getElementById("longUrl").value.trim();
+      if (!input || !input.startsWith("http")) {
+        alert("Please enter a valid URL to generate QR code.");
+        return;
+      }
+      currentLink = input;
+      document.getElementById("popup").style.display = "block";
+      document.getElementById("overlay").style.display = "block";
+      document.getElementById("result").innerHTML = `<a href="${input}" target="_blank">${input}</a>`;
+      generateQRCode(currentLink);
+    }
+
+    function generateQRCode(link) {
       const canvas = document.getElementById("qrCanvas");
-      QRCode.toCanvas(canvas, currentLink, function (error) {
+      QRCode.toCanvas(canvas, link, function (error) {
         if (error) console.error(error);
-        const link = document.getElementById("downloadQR");
-        link.href = canvas.toDataURL();
+        const download = document.getElementById("downloadQR");
+        download.href = canvas.toDataURL();
       });
     }
 
@@ -277,7 +290,6 @@
       });
     }
 
-    // Load saved history on page load
     window.onload = () => {
       updateHistory("load");
     };
