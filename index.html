@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ShortWurm 🐛 - Shrink Your Link</title>
+  <title>ShortWorm 🐛 - Shrink Your Link</title>
   <style>
     body {
       margin: 0;
@@ -107,7 +107,7 @@
 </head>
 <body>
   <header>
-    <h1>ShortWurm 🐛</h1>
+    <h1>ShortWorm 🐛</h1>
     <p>Shrink your links — the wormy way.</p>
   </header>
 
@@ -115,7 +115,7 @@
     <div class="side-ad">AD SPACE<br />Left Side</div>
 
     <div class="container">
-      <h2>1. Paste your long URL below:</h2>
+      <h2>1. Paste your link above:</h2>
       <input type="text" id="longUrl" placeholder="https://yourlonglink.com" />
       <button onclick="shorten()">Generate Link</button>
 
@@ -127,9 +127,9 @@
         2. Only use 3–15 characters: letters, numbers, dashes (-), or underscores (_).<br />
         3. Click "Generate Link" again.<br /><br />
         <strong>Example of final link:</strong><br />
-        <em>https://shortwurm.com/r/abc123</em>
+        <em>https://shortworm.com/r/abc123</em>
       </div>
-      <input type="text" id="customCode" placeholder="Enter your custom code here" />
+      <input type="text" id="customCode" placeholder="Enter your custom end code here" />
       <button onclick="shorten()">Generate Link</button>
     </div>
 
@@ -173,7 +173,7 @@
       const code = custom || Math.random().toString(36).substring(2, 7);
       usedCodes.add(code);
 
-      const shortUrl = `https://shortwurm.com/r/${code}`;
+      const shortUrl = `https://shortworm.com/r/${code}`;
       currentLink = shortUrl;
       resultBox.innerHTML = `<a href="${input}" target="_blank">${shortUrl}</a>`;
 
