@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ShortWorm 🐛 - Shrink Your Link</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -69,6 +70,7 @@
       border-radius: 6px;
       cursor: pointer;
       margin-top: 10px;
+      margin-right: 10px;
     }
 
     button:hover {
@@ -99,6 +101,7 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
       display: none;
       z-index: 1000;
+      text-align: center;
     }
 
     .popup a {
@@ -114,6 +117,20 @@
       background: rgba(0,0,0,0.4);
       display: none;
       z-index: 999;
+    }
+
+    .history {
+      margin-top: 30px;
+      font-size: 14px;
+    }
+
+    .history ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .history li {
+      margin-bottom: 6px;
     }
 
     @media (max-width: 768px) {
@@ -133,15 +150,16 @@
     <div class="side-ad">AD SPACE<br />Left Side</div>
 
     <div class="container">
-      <h2>1. Paste your link above:</h2>
+      <h2>1. Paste your link below:</h2>
       <input type="text" id="longUrl" placeholder="https://yourlonglink.com" />
       <button onclick="shorten(event)">Generate Link</button>
+      <button onclick="generateQR()">Generate QR Code</button>
 
       <h3>2. Custom URL (Optional)</h3>
       <div class="custom-guide">
         <strong>How to create your custom short link:</strong><br /><br />
         <u>Instructions:</u><br />
-        1. Paste your link above.<br />
+        1. Paste your link below.<br />
         2. Type your custom code in the box below (e.g. <code>abc123</code>).<br />
         3. Only use 3–15 characters: letters, numbers, dashes (-), or underscores (_).<br />
         4. Click "Generate Link" again.<br /><br />
@@ -150,6 +168,11 @@
       </div>
       <input type="text" id="customCode" placeholder="Enter your custom end code here" />
       <button onclick="shorten(event)">Generate Link</button>
+
+      <div class="history">
+        <h3>📜 Your Recent Short Links:</h3>
+        <ul id="linkHistory"></ul>
+      </div>
     </div>
 
     <div class="side-ad">AD SPACE<br />Right Side</div>
@@ -159,13 +182,30 @@
   <div class="popup" id="popup">
     <h3>🐛 Your Short Link:</h3>
     <p id="result"></p>
+    <canvas id="qrCanvas"></canvas>
+    <br />
     <button onclick="copyToClipboard()">Copy to Clipboard</button>
+    <a id="downloadQR" download="shortworm_qr.png">Download QR Code</a>
+    <br /><br />
     <button onclick="closePopup()">Close</button>
   </div>
 
   <script>
     const usedCodes = new Set();
     let currentLink = "";
+
+    function updateHistory(shortUrl) {
+      const history = JSON.parse(localStorage.getItem("wormLinks") || "[]");
+      history.unshift(shortUrl);
+      localStorage.setItem("wormLinks", JSON.stringify(history.slice(0, 5)));
+      const ul = document.getElementById("linkHistory");
+      ul.innerHTML = "";
+      history.slice(0, 5).forEach(link => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
+        ul.appendChild(li);
+      });
+    }
 
     async function shorten(event) {
       try {
@@ -205,11 +245,23 @@
         document.getElementById("popup").style.display = "block";
         document.getElementById("overlay").style.display = "block";
 
+        generateQR();
+        updateHistory(shortUrl);
+
         btn.disabled = false;
         btn.textContent = "Generate Link";
       } catch (error) {
         console.error(error);
       }
+    }
+
+    function generateQR() {
+      const canvas = document.getElementById("qrCanvas");
+      QRCode.toCanvas(canvas, currentLink, function (error) {
+        if (error) console.error(error);
+        const link = document.getElementById("downloadQR");
+        link.href = canvas.toDataURL();
+      });
     }
 
     function closePopup() {
@@ -224,6 +276,11 @@
         alert("Failed to copy link.");
       });
     }
+
+    // Load saved history on page load
+    window.onload = () => {
+      updateHistory("load");
+    };
   </script>
 </body>
 </html>
