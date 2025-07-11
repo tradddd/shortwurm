@@ -21,21 +21,19 @@
 
     .worm {
       width: 100px;
-      height: 20px;
-      background: linear-gradient(to right, #4caf50, #81c784);
-      border-radius: 10px;
-      animation: stretchWorm 3s ease-in-out infinite;
-      transform-origin: left;
+      height: 6px;
+      background: white;
+      border-radius: 50px;
+      animation: wiggleWorm 2s infinite ease-in-out;
       margin: 0 auto 10px;
     }
 
-    @keyframes stretchWorm {
-      0%, 100% {
-        transform: scaleX(1) rotate(0deg);
-      }
-      50% {
-        transform: scaleX(2) rotate(1deg);
-      }
+    @keyframes wiggleWorm {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(2deg); }
+      50% { transform: rotate(0deg); }
+      75% { transform: rotate(-2deg); }
+      100% { transform: rotate(0deg); }
     }
 
     .container {
@@ -64,6 +62,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      margin-top: 10px;
     }
 
     .result-area {
@@ -114,15 +113,16 @@
     <h2>Paste your long URL:</h2>
     <input type="text" id="longUrl" placeholder="https://yourlonglink.com" />
 
+    <button onclick="shorten()">Generate Link</button>
+
     <h3>Custom Short Code (Optional)</h3>
     <div class="custom-guide">
-      Want a custom short link like <strong>shortwurm.com/r/mycode</strong>?<br />
-      Use 3–15 letters, numbers, dashes or underscores.<br />
-      Example: <em>summer2025</em>, <em>cool-link</em>
+      Want a custom short link like <strong>shortwurm.com/r/abc</strong>?<br />
+      Just type what you want the end of the link to be!<br />
+      Examples: <em>abc</em>, <em>yourname</em>, <em>school23</em><br />
+      ✅ 3–15 characters only — letters, numbers, dashes (-), or underscores (_)
     </div>
     <input type="text" id="customCode" placeholder="Enter your custom code here" />
-
-    <button onclick="shorten()">Shorten Link</button>
 
     <div class="result-area">
       <div class="short-link-box" id="result"></div>
