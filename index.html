@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ShortWurm 🐛</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f9f9f9;
       text-align: center;
       padding: 40px 20px;
@@ -44,6 +44,8 @@
       font-size: 1rem;
       border-radius: 10px;
       border: 1px solid #ccc;
+      margin-top: 10px;
+      box-sizing: border-box;
     }
 
     button {
@@ -64,18 +66,26 @@
     .result {
       margin-top: 20px;
       font-size: 1.1rem;
+      word-break: break-word;
     }
 
     .ad-banner {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 10px;
+      margin-top: 20px;
       background: #eee;
-      font-size: 0.9rem;
+      padding: 10px;
+      border-radius: 8px;
       color: #333;
-      border-top: 1px solid #ccc;
+      display: none; /* Hidden by default */
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      font-weight: 600;
+    }
+
+    .ad-banner a {
+      color: #4caf50;
+      text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -86,34 +96,77 @@
 
   <p>Paste your long link below to shrink it!</p>
 
-  <input type="text" id="longUrl" placeholder="https://yourlonglink.com" />
-  <br>
+  <input
+    type="text"
+    id="longUrl"
+    placeholder="https://yourlonglink.com"
+    autocomplete="off"
+  />
+  <br />
+  <input
+    type="text"
+    id="customCode"
+    placeholder="Custom code (optional)"
+    autocomplete="off"
+  />
+
+  <br />
   <button onclick="shorten()">Shorten URL</button>
 
   <div class="result" id="result"></div>
 
-  <div class="ad-banner">
+  <div id="customAd" class="ad-banner">
+    🎉 Thanks for using a custom link! Here's a special ad for you 🌟  
+    <!-- Replace below with your actual ad code/banner -->
+    <a href="https://example.com" target="_blank" rel="noopener noreferrer">Check out this cool offer!</a>
+  </div>
+
+  <div class="ad-banner" style="position: fixed; bottom: 0; left: 0; right: 0;">
     🌱 Ad space here (banner only) — no popups, no autoplay
   </div>
 
   <script>
+    const usedCodes = new Set();
+
     function shorten() {
       const input = document.getElementById("longUrl").value.trim();
+      const custom = document.getElementById("customCode").value.trim();
+      const adDiv = document.getElementById("customAd");
+
       if (!input || !input.startsWith("http")) {
         alert("Please enter a valid URL starting with http or https");
         return;
       }
 
-      const code = Math.random().toString(36).substring(2, 7);
+      if (custom) {
+        const validCode = /^[a-zA-Z0-9-_]{3,15}$/.test(custom);
+        if (!validCode) {
+          alert(
+            "Custom code must be 3-15 characters, letters, numbers, - or _ only."
+          );
+          return;
+        }
+        if (usedCodes.has(custom)) {
+          alert("This custom code is already taken. Please choose another.");
+          return;
+        }
+      }
+
+      let code = custom || Math.random().toString(36).substring(2, 7);
+      usedCodes.add(code);
+
       const shortUrl = `https://shortwurm.com/r/${code}`;
-
-      // You can later store input + code in Firebase or Supabase
-
       document.getElementById("result").innerHTML = `
-        🐛 Your short link: <a href="${input}" target="_blank">${shortUrl}</a>
+        🐛 Your short link: <a href="${input}" target="_blank" rel="noopener noreferrer">${shortUrl}</a>
       `;
+
+      if (custom) {
+        adDiv.style.display = "block";
+      } else {
+        adDiv.style.display = "none";
+      }
     }
   </script>
-
 </body>
 </html>
+
