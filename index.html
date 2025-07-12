@@ -190,7 +190,7 @@
     <button onclick="closePopup()">Close</button>
   </div>
 
- <!-- Supabase JS client -->
+<!-- Supabase JS client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -198,11 +198,11 @@
   const SUPABASE_URL = "https://trtztjcnogpcbhhzfpzc.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRydHp0amNub2dwY2pjaHpmcHpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzMDU0NzksImV4cCI6MjA2Nzg4MTQ3OX0.3c-cBtbdLh5qmgpLnOVjdpkZpYmJV_qmdo1WfMQm-ns";
 
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentLink = "";
 
   async function updateHistory() {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from("short_urls")
       .select("short_code")
       .order("created_at", { ascending: false })
@@ -242,7 +242,7 @@
           return;
         }
 
-        const { data: existing, error } = await supabase
+        const { data: existing, error } = await client
           .from("short_urls")
           .select("short_code")
           .eq("short_code", custom)
@@ -266,7 +266,7 @@
 
       const code = custom || Math.random().toString(36).substring(2, 7);
 
-      const { error: insertError } = await supabase
+      const { error: insertError } = await client
         .from("short_urls")
         .insert([{ original_url: input, short_code: code }]);
 
