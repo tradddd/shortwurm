@@ -6,7 +6,138 @@
   <title>ShortWorm 🐛 - Shrink Your Link</title>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
   <style>
-    /* (Style code remains unchanged, omitted here for brevity) */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #333;
+    }
+
+    header {
+      background-color: #4caf50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .page-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .side-ad {
+      width: 120px;
+      height: 300px;
+      background: #e0e0e0;
+      border-radius: 6px;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .container {
+      flex: 1;
+      max-width: 700px;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    input[type="text"]:focus {
+      outline: 2px solid #4caf50;
+    }
+
+    button {
+      padding: 14px 24px;
+      font-size: 16px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background-color: #3e8e41;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .custom-guide {
+      font-size: 14px;
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 2px solid #4caf50;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+      text-align: center;
+    }
+
+    .popup a {
+      word-break: break-word;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      z-index: 999;
+    }
+
+    .history {
+      margin-top: 30px;
+      font-size: 14px;
+    }
+
+    .history ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .history li {
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 768px) {
+      .side-ad {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -59,157 +190,157 @@
     <button onclick="closePopup()">Close</button>
   </div>
 
-  <!-- Supabase JS client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ <!-- Supabase JS client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script>
-    // Supabase config
-    const SUPABASE_URL = "https://trtztjcnogpcbhhzfpzc.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRydHp0amNub2dwY2pjaHpmcHpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzMDU0NzksImV4cCI6MjA2Nzg4MTQ3OX0.3c-cBtbdLh5qmgpLnOVjdpkZpYmJV_qmdo1WfMQm-ns";
+<script>
+  // Supabase config
+  const SUPABASE_URL = "https://trtztjcnogpcbhhzfpzc.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRydHp0amNub2dwY2pjaHpmcHpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzMDU0NzksImV4cCI6MjA2Nzg4MTQ3OX0.3c-cBtbdLh5qmgpLnOVjdpkZpYmJV_qmdo1WfMQm-ns";
 
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentLink = "";
 
-    let currentLink = "";
+  async function updateHistory() {
+    const { data, error } = await supabase
+      .from("short_urls")
+      .select("short_code")
+      .order("created_at", { ascending: false })
+      .limit(5);
 
-    async function updateHistory() {
-      const { data, error } = await client
-        .from("short_urls")
-        .select("short_code")
-        .order("created_at", { ascending: false })
-        .limit(5);
+    if (error) {
+      console.error("History fetch error:", error);
+      return;
+    }
 
-      if (error) {
-        console.error("Failed to fetch history:", error);
+    const ul = document.getElementById("linkHistory");
+    ul.innerHTML = "";
+    data.forEach(item => {
+      const shortUrl = `https://shortworm.com/r/${item.short_code}`;
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="${shortUrl}" target="_blank" rel="noopener">${shortUrl}</a>`;
+      ul.appendChild(li);
+    });
+  }
+
+  async function shorten(event) {
+    try {
+      const input = document.getElementById("longUrl").value.trim();
+      const custom = document.getElementById("customCode").value.trim();
+      const resultBox = document.getElementById("result");
+      const btn = event.target;
+
+      if (!input || !input.startsWith("http")) {
+        alert("Please enter a valid URL starting with http or https");
         return;
       }
 
-      const ul = document.getElementById("linkHistory");
-      ul.innerHTML = "";
-      data.forEach(item => {
-        const shortUrl = `https://shortworm.com/r/${item.short_code}`;
-        const li = document.createElement("li");
-        li.innerHTML = `<a href="${shortUrl}" target="_blank" rel="noopener">${shortUrl}</a>`;
-        ul.appendChild(li);
-      });
-    }
-
-    async function shorten(event) {
-      try {
-        const input = document.getElementById("longUrl").value.trim();
-        const custom = document.getElementById("customCode").value.trim();
-        const resultBox = document.getElementById("result");
-        const btn = event.target;
-
-        if (!input || !input.startsWith("http")) {
-          alert("Please enter a valid URL starting with http or https");
+      if (custom) {
+        const validCode = /^[a-zA-Z0-9-_]{3,15}$/.test(custom);
+        if (!validCode) {
+          alert("Custom code must be 3–15 characters: letters, numbers, - or _ only.");
           return;
         }
 
-        if (custom) {
-          const validCode = /^[a-zA-Z0-9-_]{3,15}$/.test(custom);
-          if (!validCode) {
-            alert("Custom code must be 3–15 characters: letters, numbers, - or _ only.");
-            return;
-          }
-
-          const { data: existing, error } = await client
-            .from("short_urls")
-            .select("short_code")
-            .eq("short_code", custom)
-            .maybeSingle();
-
-          if (error) {
-            alert("Error checking custom code availability");
-            console.error(error);
-            return;
-          }
-          if (existing) {
-            alert("This custom code is already taken. Try another.");
-            return;
-          }
-        }
-
-        btn.disabled = true;
-        btn.textContent = "Generating...";
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const code = custom || Math.random().toString(36).substring(2, 7);
-
-        const { error: insertError } = await client
+        const { data: existing, error } = await supabase
           .from("short_urls")
-          .insert([{ original_url: input, short_code: code }]);
+          .select("short_code")
+          .eq("short_code", custom)
+          .maybeSingle();
 
-        if (insertError) {
-          alert("Failed to create short link.");
-          console.error(insertError);
-          btn.disabled = false;
-          btn.textContent = "Generate Link";
+        if (error) {
+          alert("Error checking custom code");
+          console.error(error);
           return;
         }
 
-        const shortUrl = `https://shortworm.com/r/${code}`;
-        currentLink = shortUrl;
+        if (existing) {
+          alert("Custom code already taken. Try another.");
+          return;
+        }
+      }
 
-        document.getElementById("popup-title").innerText = "🐛 Your Short Link:";
-        resultBox.innerHTML = `<a href="${input}" target="_blank" rel="noopener">${shortUrl}</a>`;
+      btn.disabled = true;
+      btn.textContent = "Generating...";
+      await new Promise(res => setTimeout(res, 500));
 
-        document.getElementById("popup").style.display = "block";
-        document.getElementById("overlay").style.display = "block";
+      const code = custom || Math.random().toString(36).substring(2, 7);
 
-        generateQRCode(currentLink);
-        document.getElementById("copyBtn").style.display = "inline-block";
-        updateHistory();
+      const { error: insertError } = await supabase
+        .from("short_urls")
+        .insert([{ original_url: input, short_code: code }]);
 
+      if (insertError) {
+        console.error("Insert failed:", insertError);
+        alert("Failed to create short link.");
         btn.disabled = false;
         btn.textContent = "Generate Link";
-      } catch (error) {
-        console.error(error);
-        alert("Unexpected error occurred: " + error.message);
-      }
-    }
-
-    function generateQRCodeOnly() {
-      const input = document.getElementById("longUrl").value.trim();
-      if (!input || !input.startsWith("http")) {
-        alert("Please enter a valid URL to generate QR code.");
         return;
       }
-      currentLink = input;
 
-      document.getElementById("popup-title").innerText = "📱 Your QR Code:";
-      document.getElementById("result").innerHTML = "";
+      const shortUrl = `https://shortworm.com/r/${code}`;
+      currentLink = shortUrl;
+
+      document.getElementById("popup-title").innerText = "🐛 Your Short Link:";
+      resultBox.innerHTML = `<a href="${input}" target="_blank" rel="noopener">${shortUrl}</a>`;
       document.getElementById("popup").style.display = "block";
       document.getElementById("overlay").style.display = "block";
 
       generateQRCode(currentLink);
-      document.getElementById("copyBtn").style.display = "none";
-    }
-
-    function generateQRCode(link) {
-      const canvas = document.getElementById("qrCanvas");
-      QRCode.toCanvas(canvas, link, function (error) {
-        if (error) console.error(error);
-        const download = document.getElementById("downloadQR");
-        download.href = canvas.toDataURL();
-      });
-    }
-
-    function closePopup() {
-      document.getElementById("popup").style.display = "none";
-      document.getElementById("overlay").style.display = "none";
-    }
-
-    function copyToClipboard() {
-      navigator.clipboard.writeText(currentLink).then(() => {
-        alert("Link copied to clipboard!");
-      }, () => {
-        alert("Failed to copy link.");
-      });
-    }
-
-    window.onload = () => {
+      document.getElementById("copyBtn").style.display = "inline-block";
       updateHistory();
-    };
-  </script>
+
+      btn.disabled = false;
+      btn.textContent = "Generate Link";
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("Something went wrong. Check the console.");
+    }
+  }
+
+  function generateQRCodeOnly() {
+    const input = document.getElementById("longUrl").value.trim();
+    if (!input || !input.startsWith("http")) {
+      alert("Please enter a valid URL to generate QR code.");
+      return;
+    }
+
+    currentLink = input;
+    document.getElementById("popup-title").innerText = "📱 Your QR Code:";
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("popup").style.display = "block";
+    document.getElementById("overlay").style.display = "block";
+
+    generateQRCode(currentLink);
+    document.getElementById("copyBtn").style.display = "none";
+  }
+
+  function generateQRCode(link) {
+    const canvas = document.getElementById("qrCanvas");
+    QRCode.toCanvas(canvas, link, function (error) {
+      if (error) console.error(error);
+      document.getElementById("downloadQR").href = canvas.toDataURL();
+    });
+  }
+
+  function closePopup() {
+    document.getElementById("popup").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
+  }
+
+  function copyToClipboard() {
+    navigator.clipboard.writeText(currentLink).then(() => {
+      alert("Link copied to clipboard!");
+    }, () => {
+      alert("Failed to copy link.");
+    });
+  }
+
+  window.onload = () => {
+    updateHistory();
+  };
+</script>
 </body>
 </html>
+
+
