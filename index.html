@@ -190,19 +190,36 @@
     <button onclick="closePopup()">Close</button>
   </div>
 
+  <!-- Supabase JS client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
-    const usedCodes = new Set();
+    // Supabase config
+    const SUPABASE_URL = "https://trtztjcnogpcbhhzfpzc.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRydHp0amNub2dwY2pjaHpmcHpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzMDU0NzksImV4cCI6MjA2Nzg4MTQ3OX0.3c-cBtbdLh5qmgpLnOVjdpkZpYmJV_qmdo1WfMQm-ns";
+
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     let currentLink = "";
 
-    function updateHistory(shortUrl) {
-      const history = JSON.parse(localStorage.getItem("wormLinks") || "[]");
-      history.unshift(shortUrl);
-      localStorage.setItem("wormLinks", JSON.stringify(history.slice(0, 5)));
+    async function updateHistory() {
+      const { data, error } = await supabase
+        .from("short_urls")
+        .select("short_code")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (error) {
+        console.error("Failed to fetch history:", error);
+        return;
+      }
+
       const ul = document.getElementById("linkHistory");
       ul.innerHTML = "";
-      history.slice(0, 5).forEach(link => {
+      data.forEach(item => {
+        const shortUrl = `https://shortworm.com/r/${item.short_code}`;
         const li = document.createElement("li");
-        li.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
+        li.innerHTML = `<a href="${shortUrl}" target="_blank" rel="noopener">${shortUrl}</a>`;
         ul.appendChild(li);
       });
     }
@@ -225,7 +242,20 @@
             alert("Custom code must be 3–15 characters: letters, numbers, - or _ only.");
             return;
           }
-          if (usedCodes.has(custom)) {
+
+          // Check if custom code already exists in DB
+          const { data: existing, error } = await supabase
+            .from("short_urls")
+            .select("short_code")
+            .eq("short_code", custom)
+            .single();
+
+          if (error && error.code !== "PGRST116") { // PGRST116 means no rows found (good)
+            alert("Error checking custom code availability");
+            console.error(error);
+            return;
+          }
+          if (existing) {
             alert("This custom code is already taken. Try another.");
             return;
           }
@@ -236,7 +266,21 @@
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const code = custom || Math.random().toString(36).substring(2, 7);
-        usedCodes.add(code);
+
+        // Insert new short URL into Supabase
+        const { error: insertError } = await supabase
+          .from("short_urls")
+          .insert([
+            { original_url: input, short_code: code }
+          ]);
+
+        if (insertError) {
+          alert("Failed to create short link.");
+          console.error(insertError);
+          btn.disabled = false;
+          btn.textContent = "Generate Link";
+          return;
+        }
 
         const shortUrl = `https://shortworm.com/r/${code}`;
         currentLink = shortUrl;
@@ -249,12 +293,13 @@
 
         generateQRCode(currentLink);
         document.getElementById("copyBtn").style.display = "inline-block";
-        updateHistory(shortUrl);
+        updateHistory();
 
         btn.disabled = false;
         btn.textContent = "Generate Link";
       } catch (error) {
         console.error(error);
+        alert("Unexpected error occurred.");
       }
     }
 
@@ -298,7 +343,7 @@
     }
 
     window.onload = () => {
-      updateHistory("load");
+      updateHistory();
     };
   </script>
 </body>
