@@ -196,13 +196,14 @@
 <script>
   // Supabase config
   const SUPABASE_URL = "https://trtztjcnogpcbhhzfpzc.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRydHp0amNub2dwY2pjaHpmcHpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzMDU0NzksImV4cCI6MjA2Nzg4MTQ3OX0.3c-cBtbdLh5qmgpLnOVjdpkZpYmJV_qmdo1WfMQm-ns";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRydHp0amNub2dwY2JoaHpmcHpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzMDU0NzksImV4cCI6MjA2Nzg4MTQ3OX0.3c-cBtbdLh5qmgpLnOVjdpkZpYmJV_qmdo1WfMQm-ns";
 
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Initialize Supabase client
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentLink = "";
 
   async function updateHistory() {
-    const { data, error } = await client
+    const { data, error } = await supabaseClient
       .from("short_urls")
       .select("short_code")
       .order("created_at", { ascending: false })
@@ -242,7 +243,7 @@
           return;
         }
 
-        const { data: existing, error } = await client
+        const { data: existing, error } = await supabaseClient
           .from("short_urls")
           .select("short_code")
           .eq("short_code", custom)
@@ -266,7 +267,7 @@
 
       const code = custom || Math.random().toString(36).substring(2, 7);
 
-      const { error: insertError } = await client
+      const { error: insertError } = await supabaseClient
         .from("short_urls")
         .insert([{ original_url: input, short_code: code }]);
 
